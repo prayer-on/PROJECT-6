@@ -57,27 +57,31 @@ book.save().then(() => {
 });
 
 
+app.get('/api/books/:id', (req, res, next) => {
+    Book.findOne({
+        _id: req.params.id
+    }).then(
+        (book) => {
+            res.status(200).json(book);
+        })
+       .catch((error) => {
+            res.status(404).json({
+                error: error
+            });
+        });
+});
 
 
 app.get('/api/books',(req, res, next) => {
-    const book = [
-        {
-userId: String,
-title: String,
-author: String, 
-imageUrl: String, 
-year: Number,
-genre: String,
-ratings: [
-{
-userId: String,
-grade: Number,
-}
-],
-averageRating: Number,
-}
-]
-res.status(200).json(book);
+    Book.find().then(
+    (books) => {
+    res.status(200).json(books);
+    })
+    .catch((error) => {
+    res.status(400).json({
+    error: error
+});
+    });
 });
 
 module.exports = app;
