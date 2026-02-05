@@ -57,6 +57,49 @@ book.save().then(() => {
 });
 
 
+app.put('api/books/:id', (req, res, next) => {
+    const book = new Book({
+        _id: req.params.id,
+        title: req.body.title,
+author: req.body.author,
+imageUrl: req.body.imageUrl,
+year: req.body.year,
+genre: req.body.genre,
+ratings: [
+{
+userId: req.body.userId,
+userId: req.body.userId,
+}
+],
+averageRating: req.body.averageRating,
+    });
+
+Book.updateOne({_id: req.params.id}, book) .then(() => {
+    res.status(201).json({
+        message: 'Book updated successfully!'
+    });
+    })
+    .catch((error) => {
+    res.status(400).json({
+        error: error
+    })
+    })
+});
+
+
+
+app.delete('api/books/:id',(req, res, next) => {
+    Book.deleteOne({_id: req.params.id}) .then(() => {
+        res.status(200).json({
+            message: 'Book deleted'})
+        })
+        .catch((error) => {
+            res.status(400).json({
+                error: error
+            })
+        });
+    });
+
 app.get('/api/books/:id', (req, res, next) => {
     Book.findOne({
         _id: req.params.id
