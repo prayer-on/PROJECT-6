@@ -73,7 +73,18 @@ Book.updateOne({_id: req.params.id}, book) .then(() => {
 };
 
 exports.deleteBook = (req, res, next) => {
-    Book.deleteOne({_id: req.params.id}) .then(() => {
+    Book.findOne({_id: req.params.id}) .then((book) => {
+        if(!book) {
+           return res.status(404).json({
+                error: new Error ('No book founded!')
+            });
+        };
+        if (book.userId !== req.auth.userId) {
+            return res.status(400).json({
+                error: new Error ('Not authorized!')
+            });
+        };
+        Book.deleteOne({_id: req.params.id}) .then(() => {
         res.status(200).json({
             message: 'Book deleted'})
         })
@@ -82,6 +93,7 @@ exports.deleteBook = (req, res, next) => {
                 error: error
             })
         });
+    });
     };
 
 exports.getAllBooks = (req, res, next) => {
