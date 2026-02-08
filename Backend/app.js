@@ -11,7 +11,7 @@ const path = require('path');
 const app = express();
 
 // DATABASE CONNECTION ⬇️
-mongoose.connect('mongodb+srv://Prayer:honCew-tiwguw-7vurxy @cluster0.6cw2olg.mongodb.net/?appName=Cluster0')
+mongoose.connect('mongodb+srv://Prayer:honCew-tiwguw-7vurxy@cluster0.6cw2olg.mongodb.net/?appName=Cluster0')
 .then(() => {
 console.log('Successfully connected to MongoDB Atlas!')
 })
