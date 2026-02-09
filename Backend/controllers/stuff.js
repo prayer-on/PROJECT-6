@@ -1,13 +1,23 @@
 const Book = require ('../models/book');
 const fs = require ('fs');
+const sharp = require('sharp');
 
 exports.createBook = (req, res, next) => {
 const url = req.protocol + '://' + req.get('host');
 req.body.book = JSON.parse(req.body.book)
+
+const webpFilename = req.file.filename.split('.')[0] + '.webp';
+sharp(req.file.path)
+.webp({ quality: 20 })
+.toFile(`images/${webpFilename}`);
+fs.unlink(req.file.path, (error) => { 
+    console.log(error)
+});
+
 const book = new Book({
 title: req.body.book.title,
 author: req.body.book.author,
-imageUrl: url + '/images/' + req.file.filename,
+imageUrl: url + '/images/' + webpFilename,
 year: req.body.book.year,
 genre: req.body.book.genre,
 ratings: [
@@ -47,16 +57,18 @@ exports.getOneBook = (req, res, next) => {
 
 exports.modifyBook = (req, res, next) => {
     
-let book = new Book({_id: req.params.id})
+let book = ({_id: req.params.id})
 if(req.file) {
 const url = req.protocol + '://' + req.get('host');
 req.body.book = JSON.parse(req.body.book)
 
-const book = {
+const webpFilename = req.file.filename.split('.')[0] + '.webp';
+
+book = {
 _id: req.params.id,
 title: req.body.book.title,
 author: req.body.book.author,
-imageUrl: url + '/images/' + req.file.filename,
+imageUrl: url + '/images/' + webpFilename,
 year: req.body.book.year,
 genre: req.body.book.genre,
 ratings: [
@@ -67,10 +79,16 @@ userId: req.body.book.userId,
 ],
 averageRating: req.body.book.averageRating,
 }; 
+sharp(req.file.path)
+.webp({ quality: 20 })
+.toFile(`images/${webpFilename}`);
+fs.unlink(req.file.path, (error) => { 
+    console.log(error)
+});
 } 
 
 else {
-const book = {
+book = {
 _id: req.params.id,
 title: req.body.title,
 author: req.body.author,
@@ -86,8 +104,6 @@ userId: req.body.userId,
 averageRating: req.body.averageRating,
     };
 }
-    
-
 Book.updateOne({_id: req.params.id}, book) .then(() => {
     res.status(201).json({
         message: 'Book updated successfully!'
@@ -128,3 +144,7 @@ exports.getAllBooks = (req, res, next) => {
 });
     });
 };
+
+
+
+
