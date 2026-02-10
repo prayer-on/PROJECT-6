@@ -23,7 +23,7 @@ genre: req.body.book.genre,
 ratings: [
 {
 userId: req.body.book.userId,
-userId: req.body.book.userId,
+grade: req.body.book.grade,
 }
 ],
 averageRating: req.body.book.averageRating,
@@ -74,7 +74,7 @@ genre: req.body.book.genre,
 ratings: [
 {
 userId: req.body.book.userId,
-userId: req.body.book.userId,
+grade: req.body.book.grade,
 }
 ],
 averageRating: req.body.book.averageRating,
@@ -145,6 +145,44 @@ exports.getAllBooks = (req, res, next) => {
     });
 };
 
+exports.getTopThreeBooks = (req, res, next) => {
+Book.find()
+.sort({rating: -1})
+.limit(3)
+.then(
+    (books) => {
+    res.status(200).json(books);
+    })
+    .catch((error) => {
+    res.status(400).json({
+    error: error
+});
+    });
+};
 
+exports.createRateBook = (req, res, next) => {
+Book.findOne({_id: req.params.id}) .then((book) => {
 
+    if(req.body.ratings < 0 || req.body.ratings > 5) {
+        res.status(400).json({
+            message: "The rate must be between 0 and 5!"
+        });
+    };
+
+    const userAlreadyRated = book.ratings.find(r => r.userId === req.auth.userId)
+
+    if (userAlreadyRated) {
+        return res.status(400).json({
+            message: "You already rated this book!"
+        });
+    };
+
+    const newRateUser = {
+        userId: req.auth.userId,
+        grade: req.body.rating
+    };
+
+    book.ratings.push(newRateUser);
+});
+};
 
