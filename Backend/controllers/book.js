@@ -164,8 +164,8 @@ exports.createRateBook = (req, res, next) => {
 Book.findOne({_id: req.params.id}) .then((book) => {
 
     if(req.body.ratings < 0 || req.body.ratings > 5) {
-        res.status(400).json({
-            message: "The rate must be between 0 and 5!"
+        return res.status(400).json({
+        message: "The rate must be between 0 and 5!"
         });
     };
 
@@ -179,10 +179,26 @@ Book.findOne({_id: req.params.id}) .then((book) => {
 
     const newRateUser = {
         userId: req.auth.userId,
-        grade: req.body.rating
+        grade: req.body.ratings
     };
 
     book.ratings.push(newRateUser);
+
+    const totalRatings = book.ratings.length;
+    const totalGrades = book.ratings.reduce((acc, ratings) => acc + ratings.grade, 0);
+
+    book.averageRating = totalGrades / totalRatings;
+
+    return book.save();
+})
+
+.then((ratedBook) => {
+    res.status(201).json(ratedBook)
+})
+.catch((error) => {
+    res.status(500).json({
+        error: error
+    });
 });
 };
 
