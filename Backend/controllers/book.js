@@ -6,15 +6,14 @@ exports.createBook = (req, res, next) => {
 const url = req.protocol + '://' + req.get('host');
 req.body.book = JSON.parse(req.body.book)
 
-const webpFilename = req.file.filename.split('.')[0] + '.webp';
-sharp(req.file.path)
-.webp({ quality: 20 })
-.toFile(`images/${webpFilename}`);
-fs.unlink(req.file.path, (error) => { 
-    console.log(error)
-});
+const webpFilename = req.file.originalname.split(' ').join('_').split('.')[0] + Date.now() + '.webp';
 
+sharp(req.file.buffer)
+.webp({ quality: 20 })
+.toFile(`images/${webpFilename}`)
+.then(() => {
 const book = new Book({
+userId: req.auth.userId,
 title: req.body.book.title,
 author: req.body.book.author,
 imageUrl: url + '/images/' + webpFilename,
@@ -22,23 +21,25 @@ year: req.body.book.year,
 genre: req.body.book.genre,
 ratings: [
 {
-userId: req.body.book.userId,
-grade: req.body.book.grade,
+userId: req.auth.userId,
+grade: req.body.book.ratings[0].grade,
 }
 ],
 averageRating: req.body.book.averageRating,
 });
 
-book.save().then(() => {
+return book.save()
+
+})
+.then(() => {
     res.status(201).json({
         message: 'Book saved Successfully'
     });
 })
 .catch((error) => {
-    res.status(400).json({
-        error: error
-    })
-})
+res.status(400).json({
+    error: error
+})    })
 };
 
 exports.getOneBook = (req, res, next) => {
@@ -62,7 +63,7 @@ if(req.file) {
 const url = req.protocol + '://' + req.get('host');
 req.body.book = JSON.parse(req.body.book)
 
-const webpFilename = req.file.filename.split('.')[0] + '.webp';
+const webpFilename = req.file.originalname.split(' ').join('_').split('.')[0] + Date.now() + '.webp';
 
 book = {
 _id: req.params.id,
@@ -71,20 +72,11 @@ author: req.body.book.author,
 imageUrl: url + '/images/' + webpFilename,
 year: req.body.book.year,
 genre: req.body.book.genre,
-ratings: [
-{
-userId: req.body.book.userId,
-grade: req.body.book.grade,
-}
-],
 averageRating: req.body.book.averageRating,
 }; 
-sharp(req.file.path)
+sharp(req.file.buffer)
 .webp({ quality: 20 })
-.toFile(`images/${webpFilename}`);
-fs.unlink(req.file.path, (error) => { 
-    console.log(error)
-});
+.toFile(`images/${webpFilename}`)
 } 
 
 else {
@@ -95,12 +87,6 @@ author: req.body.author,
 imageUrl: req.body.imageUrl,
 year: req.body.year,
 genre: req.body.genre,
-ratings: [
-{
-userId: req.body.userId,
-userId: req.body.userId,
-}
-],
 averageRating: req.body.averageRating,
     };
 }

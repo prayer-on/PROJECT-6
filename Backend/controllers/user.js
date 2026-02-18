@@ -39,18 +39,18 @@ exports.login = (req, res, next) => {
     ({userId: user._id},
     'jbc4kjb24bhviu45b4bibov',
     {expiresIn:'24h'});
-    res.status(200),json({
+    res.status(200).json({
         userId: user._id,
         token: token
     });
     })
-    .catch((error) => {
+    .catch((error) => { console.log(error)
         res.status(500).json({
             error: error
         })
     })
  })
- .catch((error) => {
+ .catch((error) => { console.log(error)
     res.status(500).json({
         error: error
     })

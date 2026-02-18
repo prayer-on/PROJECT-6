@@ -9,6 +9,7 @@ const userRoutes = require('./routes/user');
 const path = require('path');
 
 const app = express();
+const cors = require('cors');
 
 // DATABASE CONNECTION ⬇️
 mongoose.connect('mongodb+srv://Prayer:honCew-tiwguw-7vurxy@cluster0.6cw2olg.mongodb.net/?appName=Cluster0')
@@ -20,10 +21,6 @@ console.log('Successfully connected to MongoDB Atlas!')
     console.log(error);
 });
 
-// BODY PARSER ⬇️
-app.use(express.json());
-
-
 // CORS ⬇️
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -31,6 +28,14 @@ app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
   next();
 });
+
+app.use(cors())
+
+
+
+// BODY PARSER ⬇️
+app.use(express.json());
+
 
 app.use('/images/', express.static(path.join(__dirname, 'images')))
 app.use('/api/books', bookRoutes);
